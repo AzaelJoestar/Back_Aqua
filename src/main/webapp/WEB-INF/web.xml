@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_1.xsd"
+         version="6.1">
+  <display-name>AquaControl API</display-name>
+
+  <!-- 1) CORS en toda la API (debe ir primero para responder los OPTIONS del navegador) -->
+  <filter>
+    <filter-name>CorsFilter</filter-name>
+    <filter-class>aquacontrol.seguridad.CorsFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter</filter-name>
+    <url-pattern>/api/*</url-pattern>
+  </filter-mapping>
+
+  <!-- 2) Token JWT solo en las rutas con información delicada.
+          Para proteger otra tabla, agrega aquí su url-pattern. -->
+  <filter>
+    <filter-name>AuthFilter</filter-name>
+    <filter-class>aquacontrol.seguridad.AuthFilter</filter-class>
+  </filter>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/usuarios/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/roles-permisos/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/ventas/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/detalle-venta/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/movimientos-agua/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/movimientos-inventario/*</url-pattern></filter-mapping>
+</web-app>
