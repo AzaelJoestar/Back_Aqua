@@ -8,11 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 
-/**
- * Ruta específica: la API solo responde por el nombre de host configurado en app.host
- * (ej. aquacontrol.local) y rechaza el acceso por localhost, 127.0.0.1 o cualquier otro nombre.
- * Se puede apagar con host.estricto=false.
- */
 public class HostFilter implements Filter {
 
     @Override
@@ -20,21 +15,31 @@ public class HostFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) rq;
         HttpServletResponse res = (HttpServletResponse) rs;
 
-        String permitidos = Config.get("app.host", "");
         boolean estricto = Boolean.parseBoolean(Config.get("host.estricto", "true"));
+        String permitidos = Config.get("app.host", "");
         if (!estricto || permitidos.isBlank()) {
             chain.doFilter(rq, rs);
             return;
         }
 
-        String host = req.getServerName(); // solo el nombre, sin puerto
+        String host = req.getServerName();
         boolean ok = host != null && Arrays.stream(permitidos.split(","))
                 .map(String::trim)
-                .anyMatch(host::equalsIgnoreCase);
+                .filter(s -> !s.isEmpty())
+                .anyMatch(permitido -> coincideHost(host.toLowerCase(), permitido.toLowerCase()));
+
         if (!ok) {
             Respuesta.error(res, 421, "Host no permitido. La API solo responde en: " + permitidos);
             return;
         }
         chain.doFilter(rq, rs);
+    }
+
+    private boolean coincideHost(String host, String permitido) {
+        if (permitido.startsWith("*.")) {
+            String dominioBase = permitido.substring(2); // ej. "onrender.com"
+            return host.equals(dominioBase) || host.endsWith("." + dominioBase);
+        }
+        return host.equals(permitido);
     }
 }
