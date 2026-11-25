@@ -1,0 +1,11 @@
+<!-- Pegar dentro de <Service name="Catalina"> en TOMCAT\conf\server.xml (Tomcat 11),
+     junto al Connector del puerto 8080. Después de crear aquacontrol.p12 y copiarlo a conf\ -->
+<Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+           maxThreads="150" SSLEnabled="true">
+    <SSLHostConfig>
+        <Certificate certificateKeystoreFile="conf/aquacontrol.p12"
+                     certificateKeystorePassword="changeit"
+                     certificateKeystoreType="PKCS12"
+                     type="RSA" />
+    </SSLHostConfig>
+</Connector>

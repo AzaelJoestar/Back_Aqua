@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_6_1.xsd"
+         version="6.1">
+  <display-name>AquaControl API</display-name>
+
+  <!-- El orden de los filter-mapping es el orden en que se ejecutan los filtros:
+       1) Host  2) CORS  3) HTTPS  4) Token JWT -->
+
+  <!-- 1) Ruta específica: solo responde por el host de app.host (no localhost) -->
+  <filter>
+    <filter-name>HostFilter</filter-name>
+    <filter-class>aquacontrol.seguridad.HostFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>HostFilter</filter-name>
+    <url-pattern>/api/*</url-pattern>
+  </filter-mapping>
+
+  <!-- 2) CORS en toda la API (responde los OPTIONS del navegador) -->
+  <filter>
+    <filter-name>CorsFilter</filter-name>
+    <filter-class>aquacontrol.seguridad.CorsFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CorsFilter</filter-name>
+    <url-pattern>/api/*</url-pattern>
+  </filter-mapping>
+
+  <!-- 3) Cifrado en tránsito: venta, pago, usuarios y login solo por HTTPS.
+          Para exigir HTTPS en otra tabla, agrega aquí su url-pattern. -->
+  <filter>
+    <filter-name>HttpsFilter</filter-name>
+    <filter-class>aquacontrol.seguridad.HttpsFilter</filter-class>
+  </filter>
+  <filter-mapping><filter-name>HttpsFilter</filter-name><url-pattern>/api/ventas/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>HttpsFilter</filter-name><url-pattern>/api/detalle-venta/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>HttpsFilter</filter-name><url-pattern>/api/pendientes/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>HttpsFilter</filter-name><url-pattern>/api/usuarios/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>HttpsFilter</filter-name><url-pattern>/api/auth/*</url-pattern></filter-mapping>
+
+  <!-- 4) Token JWT solo en las rutas con información delicada (el login queda público). -->
+  <filter>
+    <filter-name>AuthFilter</filter-name>
+    <filter-class>aquacontrol.seguridad.AuthFilter</filter-class>
+  </filter>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/usuarios/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/roles-permisos/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/ventas/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/detalle-venta/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/movimientos-agua/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/movimientos-inventario/*</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/auth/sesion</url-pattern></filter-mapping>
+  <filter-mapping><filter-name>AuthFilter</filter-name><url-pattern>/api/auth/password</url-pattern></filter-mapping>
+</web-app>
