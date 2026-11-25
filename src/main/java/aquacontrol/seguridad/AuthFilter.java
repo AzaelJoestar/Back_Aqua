@@ -12,6 +12,7 @@ import java.io.IOException;
 /**
  * Exige un token JWT válido (Authorization: Bearer ...) en las rutas con información delicada
  * (ver web.xml). Usuarios y roles, además, solo los puede usar el rol administrador.
+ * Un token cerrado con "cerrar sesión" deja de servir aunque no haya vencido.
  */
 public class AuthFilter implements Filter {
 
@@ -38,6 +39,10 @@ public class AuthFilter implements Filter {
             Respuesta.error(res, 401, "Sesión inválida o expirada");
             return;
         }
+        if (TokensRevocados.estaRevocado(jwt.getId())) {
+            Respuesta.error(res, 401, "La sesión fue cerrada, inicia sesión de nuevo");
+            return;
+        }
 
         String rol = jwt.getClaim("rol").asString();
         String ruta = req.getRequestURI().substring(req.getContextPath().length());
@@ -48,7 +53,10 @@ public class AuthFilter implements Filter {
         }
 
         req.setAttribute("idUsuario", Integer.valueOf(jwt.getSubject()));
+        req.setAttribute("usuario", jwt.getClaim("usuario").asString());
         req.setAttribute("rol", rol);
+        req.setAttribute("jti", jwt.getId());
+        req.setAttribute("venceEn", jwt.getExpiresAt() == null ? null : jwt.getExpiresAt().toInstant());
         chain.doFilter(rq, rs);
     }
 }

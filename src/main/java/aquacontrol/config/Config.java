@@ -40,4 +40,11 @@ public final class Config {
         String v = get(clave);
         return v == null ? defecto : Integer.parseInt(v.trim());
     }
+
+    /** true si el valor apunta a la propia máquina (localhost, 127.x o ::1). */
+    public static boolean esLocalhost(String valor) {
+        if (valor == null) return false;
+        String v = valor.toLowerCase();
+        return v.contains("localhost") || v.contains("127.0.0.1") || v.contains("[::1]");
+    }
 }

@@ -7,7 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 
-/** Permite que el front (Angular en otro origen/puerto) llame a la API desde el navegador. */
+/** Permite que el front (Angular, en otro origen) llame a la API. Solo los orígenes de cors.origen. */
 public class CorsFilter implements Filter {
 
     @Override
@@ -19,7 +19,7 @@ public class CorsFilter implements Filter {
         if (origen != null && permitido(origen)) {
             res.setHeader("Access-Control-Allow-Origin", origen);
             res.setHeader("Vary", "Origin");
-            res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+            res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUSH, PUT, PATCH, DELETE, OPTIONS");
             res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
             res.setHeader("Access-Control-Max-Age", "3600");
         }
@@ -31,8 +31,10 @@ public class CorsFilter implements Filter {
     }
 
     private boolean permitido(String origen) {
-        return Arrays.stream(Config.get("cors.origen", "http://localhost:4200").split(","))
+        // Sin valor por defecto: si cors.origen no está configurado, no se permite ningún origen.
+        return Arrays.stream(Config.get("cors.origen", "").split(","))
                 .map(String::trim)
+                .filter(o -> !o.isEmpty())
                 .anyMatch(origen::equals);
     }
 }

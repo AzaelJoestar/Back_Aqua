@@ -88,4 +88,14 @@ public class UsuarioDao extends BaseDao<Usuario> {
             ps.executeUpdate();
         }
     }
+
+    /** Cambio de contraseña hecho por el propio usuario: guarda el hash y quita la marca de "debe cambiarla". */
+    public void cambiarPassword(int id, String hash) throws SQLException {
+        try (Connection c = Conexion.get();
+             PreparedStatement ps = c.prepareStatement("UPDATE usuarios SET password = ?, cambiar_password = 0 WHERE id_usuario = ?")) {
+            ps.setString(1, hash);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        }
+    }
 }

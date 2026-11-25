@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.time.Instant;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 /** Crea y valida tokens JWT firmados con HMAC-SHA256. */
@@ -32,6 +33,7 @@ public final class Tokens {
         Instant ahora = Instant.now();
         return JWT.create()
                 .withIssuer(EMISOR)
+                .withJWTId(UUID.randomUUID().toString())
                 .withSubject(String.valueOf(idUsuario))
                 .withClaim("usuario", usuario)
                 .withClaim("rol", rol)

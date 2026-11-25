@@ -26,11 +26,14 @@ public class RolesPermisosServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final RolPermisoDao dao = new RolPermisoDao();
 
-    /** HttpServlet no tiene doPatch: se detecta aquí y se manda a doPatch. */
+    /** PATCH y PUSH no tienen doXxx estándar en HttpServlet: se detectan aquí en service() y se mandan a doPatch() y doPush(). */
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        if ("PATCH".equalsIgnoreCase(req.getMethod())) {
+        String metodo = req.getMethod();
+        if ("PATCH".equalsIgnoreCase(metodo)) {
             doPatch(req, res);
+        } else if ("PUSH".equalsIgnoreCase(metodo)) {
+            doPush(req, res);
         } else {
             super.service(req, res);
         }
@@ -60,6 +63,14 @@ public class RolesPermisosServlet extends HttpServlet {
             RolPermiso nuevo = Json.desde(Json.leerCuerpo(req), RolPermiso.class);
             Respuesta.json(res, 201, dao.insertar(nuevo));
         });
+    }
+
+    /**
+     * PUSH: método propio del proyecto (no es parte del estándar HTTP ni de la API de Servlets).
+     * Envía un registro nuevo al servidor, con la misma lógica que POST. No es el Server Push de HTTP/2.
+     */
+    protected void doPush(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        doPost(req, res);
     }
 
     /** PUT: reemplaza el registro completo. */

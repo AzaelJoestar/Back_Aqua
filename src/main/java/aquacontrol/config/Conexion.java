@@ -11,11 +11,18 @@ public final class Conexion {
 
     private Conexion() {}
 
+    /** Arma la URL con host, puerto y nombre de la base (db.properties). No hay host por defecto. */
+    static String url() {
+        String host = Config.get("db.host");
+        if (host == null || host.isBlank()) throw new IllegalStateException("Falta db.host en db.properties");
+        return "jdbc:postgresql://" + host.trim() + ":" + Config.entero("db.port", 5432) + "/" + Config.get("db.name", "purificadora");
+    }
+
     private static synchronized HikariDataSource fuente() {
         if (fuente == null) {
             HikariConfig cfg = new HikariConfig();
             cfg.setDriverClassName("org.postgresql.Driver");
-            cfg.setJdbcUrl(Config.get("db.url"));
+            cfg.setJdbcUrl(url());
             cfg.setUsername(Config.get("db.user"));
             cfg.setPassword(Config.get("db.password"));
             cfg.setMaximumPoolSize(Config.entero("db.pool.max", 10));
